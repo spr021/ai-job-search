@@ -18,7 +18,7 @@ except ImportError:
     _HAVE_YAML = False
 
 REPO = Path(__file__).resolve().parent.parent
-SKILL = REPO / ".claude" / "skills" / "upskill" / "SKILL.md"
+SKILL = REPO / ".opencode" / "skills" / "upskill" / "SKILL.md"
 
 
 def _sections(text: str) -> dict[str, str]:

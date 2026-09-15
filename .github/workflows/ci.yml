@@ -1,7 +1,7 @@
 # CI for the framework itself: LaTeX smoke compiles, skill/command lint,
 # CLI typechecks, and (upstream only) placeholder integrity.
 #
-# Fork-friendly by design: forks personalize CLAUDE.md, the skill files, and
+# Fork-friendly by design: forks personalize AGENTS.md, the skill files, and
 # cv/main_example.tex via /setup, so the placeholder-integrity job and the
 # exact page-count/content assertions run only on the upstream template repo.
 # Compile success, lint correctness, and an extractable PDF text layer are
@@ -13,9 +13,9 @@
 # CI runs typechecks and the checked-in fixture/mock test suites only; live
 # portal testing stays a local, on-demand step.
 #
-# Security posture: this template ships pre-approved Claude Code permissions
+# Security posture: this template ships pre-approved opencode bash permissions
 # and CLI code that every fork user executes, so the security-guards job
-# fails PRs that widen settings.json permissions, weaken the personal-data
+# fails PRs that widen opencode.json permissions, weaken the personal-data
 # gitignore rules, or add package lifecycle scripts; dependency-review flags
 # newly introduced vulnerable/malicious dependencies. Honest limit: a PR can
 # edit this workflow itself, so these guards catch accidents and casual
@@ -240,10 +240,10 @@ jobs:
               fail=1
             fi
           }
-          check CLAUDE.md '\[YOUR_NAME\]'
+          check AGENTS.md '\[YOUR_NAME\]'
           check cv/main_example.tex '\\name{\[First\]}{\[Last\]}'
           check cv/main_example.tex '\\email{\[your\.email@example\.com\]}'
           check cover_letters/cover_example.tex '\[YOUR NAME\]'
-          check .claude/skills/job-application-assistant/01-candidate-profile.md '\[YOUR_EMAIL\]'
-          check .claude/skills/job-application-assistant/04-job-evaluation.md '\[YOUR_PRIMARY_SKILLS\]'
+          check .opencode/skills/job-application-assistant/01-candidate-profile.md '\[YOUR_EMAIL\]'
+          check .opencode/skills/job-application-assistant/04-job-evaluation.md '\[YOUR_PRIMARY_SKILLS\]'
           exit $fail

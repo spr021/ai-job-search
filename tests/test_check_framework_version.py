@@ -35,7 +35,7 @@ class CheckerRepoFixture(unittest.TestCase):
         tools.mkdir()
         shutil.copy(SCRIPT, tools / "check_framework_version.py")
 
-        self.skill_dir = self.root / ".claude" / "skills" / "job-application-assistant"
+        self.skill_dir = self.root / ".opencode" / "skills" / "job-application-assistant"
         self.skill_dir.mkdir(parents=True)
         self.framework_file = self.skill_dir / "01-test-profile.md"
         self.framework_file.write_text(FRONTMATTER + BODY, encoding="utf-8")

@@ -7,7 +7,7 @@ This script:
 1. Identifies the upstream remote (defaults to 'upstream', falls back to 'origin').
 2. Fetches the latest commits from the upstream remote.
 3. Compares the 'framework_version' in your local files under
-   .claude/skills/job-application-assistant/ with those in the upstream remote.
+   .opencode/skills/job-application-assistant/ with those in the upstream remote.
 4. Alerts you if a file has been updated upstream with a newer version.
 """
 
@@ -33,6 +33,24 @@ FRAMEWORK_FILES = [
     ".claude/skills/job-application-assistant/SKILL.md",
     "AGENTS.md",
 ]
+
+# The upstream template still ships these files under .claude/; this repo keeps
+# the same methodology files under .opencode/ after the opencode-native
+# migration. Map an upstream path to its local counterpart so the version
+# comparison keeps working across the rename - the alternative (comparing
+# .opencode/... against .claude/... upstream) would report every file as
+# missing upstream and never surface a real update.
+LOCAL_PATH_OVERRIDES = {
+    ".claude/skills/": ".opencode/skills/",
+}
+
+
+def local_path_for(upstream_rel: str) -> str:
+    for upstream_prefix, local_prefix in LOCAL_PATH_OVERRIDES.items():
+        if upstream_rel.startswith(upstream_prefix):
+            return local_prefix + upstream_rel[len(upstream_prefix):]
+    return upstream_rel
+
 
 UPSTREAM_REPO_SLUG = "MadsLorentzen/ai-job-search"
 
@@ -117,9 +135,10 @@ def main() -> int:
     missing_upstream = []
 
     for rel_path in FRAMEWORK_FILES:
-        local_path = ROOT / rel_path
+        local_rel = local_path_for(rel_path)
+        local_path = ROOT / local_rel
         if not local_path.exists():
-            print(f"Local file missing: {rel_path}")
+            print(f"Local file missing: {local_rel}")
             continue
 
         # Get local version
@@ -142,7 +161,7 @@ def main() -> int:
         upstream_ver = get_framework_version_from_text(upstream_text)
         
         if not local_ver:
-            errors.append(f"Local file {rel_path} is missing 'framework_version' in frontmatter.")
+            errors.append(f"Local file {local_rel} is missing 'framework_version' in frontmatter.")
             continue
         if not upstream_ver:
             continue

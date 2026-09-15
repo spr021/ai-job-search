@@ -18,7 +18,7 @@ except ImportError:
     _HAVE_YAML = False
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-COMMAND_FILE = REPO_ROOT / ".claude" / "commands" / "html-report.md"
+COMMAND_FILE = REPO_ROOT / ".opencode" / "command" / "html-report.md"
 LINT_SCRIPT = REPO_ROOT / "tools" / "lint_skills.py"
 GITIGNORE = REPO_ROOT / ".gitignore"
 
@@ -58,7 +58,7 @@ class HtmlReportTrackerFieldTests(unittest.TestCase):
     # clean list diff naming the missing column instead.
     CANONICAL_HEADER = re.search(
         r"^\s*(date,company,[a-z_,]+)$",
-        (REPO_ROOT / ".claude" / "commands" / "apply.md").read_text(encoding="utf-8"),
+        (REPO_ROOT / ".opencode" / "command" / "apply.md").read_text(encoding="utf-8"),
         re.M,
     ).group(1).split(",")
 

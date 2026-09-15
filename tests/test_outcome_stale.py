@@ -15,7 +15,7 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-COMMAND = REPO / ".claude" / "commands" / "outcome.md"
+COMMAND = REPO / ".opencode" / "command" / "outcome.md"
 
 
 class OutcomeStaleBranchSpecTests(unittest.TestCase):

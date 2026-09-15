@@ -15,9 +15,9 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-EVALUATION = REPO / ".claude" / "skills" / "job-application-assistant" / "04-job-evaluation.md"
-APPLY = REPO / ".claude" / "commands" / "apply.md"
-INTERVIEW = REPO / ".claude" / "commands" / "interview.md"
+EVALUATION = REPO / ".opencode" / "skills" / "job-application-assistant" / "04-job-evaluation.md"
+APPLY = REPO / ".opencode" / "command" / "apply.md"
+INTERVIEW = REPO / ".opencode" / "command" / "interview.md"
 
 
 def _sections(text: str, marker: str) -> dict[str, str]:

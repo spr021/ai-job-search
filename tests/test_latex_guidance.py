@@ -19,10 +19,10 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-SKILL_DIR = REPO / ".claude" / "skills" / "job-application-assistant"
+SKILL_DIR = REPO / ".opencode" / "skills" / "job-application-assistant"
 CV_TEMPLATES = SKILL_DIR / "05-cv-templates.md"
 COVER_TEMPLATES = SKILL_DIR / "06-cover-letter-templates.md"
-APPLY = REPO / ".claude" / "commands" / "apply.md"
+APPLY = REPO / ".opencode" / "command" / "apply.md"
 EXAMPLE_CV = REPO / "cv" / "main_example.tex"
 EXAMPLE_COVER = REPO / "cover_letters" / "cover_example.tex"
 

@@ -12,7 +12,12 @@ SCRIPT = REPO_ROOT / "tools" / "check_upstream_updates.py"
 TEMPLATE_URL = "https://github.com/MadsLorentzen/ai-job-search.git"
 FORK_URL = "https://github.com/octocat/ai-job-search.git"
 
-FRAMEWORK_FILES = [
+# The checker lists framework files by their UPSTREAM paths (the template still
+# ships them under .claude/) and maps each to its LOCAL path in this repo, which
+# migrated to .opencode/. The fixture models both: the committed tree - which
+# becomes the remote ref the checker reads with `git show` - uses the upstream
+# layout, while the working tree exposes the local layout.
+UPSTREAM_FILES = [
     ".claude/skills/job-application-assistant/01-candidate-profile.md",
     ".claude/skills/job-application-assistant/02-behavioral-profile.md",
     ".claude/skills/job-application-assistant/03-writing-style.md",
@@ -23,6 +28,20 @@ FRAMEWORK_FILES = [
     ".claude/skills/job-application-assistant/08-application-forms.md",
     ".claude/skills/job-application-assistant/09-web-research.md",
     ".claude/skills/job-application-assistant/SKILL.md",
+    "AGENTS.md",
+]
+
+LOCAL_FILES = [
+    ".opencode/skills/job-application-assistant/01-candidate-profile.md",
+    ".opencode/skills/job-application-assistant/02-behavioral-profile.md",
+    ".opencode/skills/job-application-assistant/03-writing-style.md",
+    ".opencode/skills/job-application-assistant/04-job-evaluation.md",
+    ".opencode/skills/job-application-assistant/05-cv-templates.md",
+    ".opencode/skills/job-application-assistant/06-cover-letter-templates.md",
+    ".opencode/skills/job-application-assistant/07-interview-prep.md",
+    ".opencode/skills/job-application-assistant/08-application-forms.md",
+    ".opencode/skills/job-application-assistant/09-web-research.md",
+    ".opencode/skills/job-application-assistant/SKILL.md",
     "AGENTS.md",
 ]
 
@@ -38,16 +57,25 @@ class UpstreamCheckerRepoFixture(unittest.TestCase):
         tools.mkdir()
         shutil.copy(SCRIPT, tools / "check_upstream_updates.py")
 
-        for rel in FRAMEWORK_FILES:
-            path = self.root / rel
-            path.parent.mkdir(parents=True, exist_ok=True)
-            path.write_text(FRONTMATTER, encoding="utf-8")
+        # Commit the upstream layout: this is what the remote ref will contain.
+        for rel in UPSTREAM_FILES:
+            self.write_framework_file(rel)
 
         subprocess.run(["git", "init", "-b", "master"], cwd=self.root, check=True, capture_output=True)
         subprocess.run(["git", "config", "user.name", "Test"], cwd=self.root, check=True, capture_output=True)
         subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=self.root, check=True, capture_output=True)
         subprocess.run(["git", "add", "-A"], cwd=self.root, check=True, capture_output=True)
         subprocess.run(["git", "commit", "-m", "init"], cwd=self.root, check=True, capture_output=True)
+
+        # Expose the local layout in the working tree. Untracked, so the
+        # committed upstream layout the checker reads stays intact.
+        for rel in LOCAL_FILES:
+            self.write_framework_file(rel)
+
+    def write_framework_file(self, rel: str) -> None:
+        path = self.root / rel
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(FRONTMATTER, encoding="utf-8")
 
     def add_remote(self, name: str, url: str) -> None:
         subprocess.run(["git", "remote", "add", name, url], cwd=self.root, check=True, capture_output=True)

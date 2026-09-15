@@ -16,8 +16,8 @@ from pathlib import Path
 UPSTREAM = "MadsLorentzen/ai-job-search"
 
 REPO = Path(__file__).resolve().parent.parent
-COMMAND = REPO / ".claude" / "commands" / "setup.md"
-SKILL_DIR = REPO / ".claude" / "skills" / "job-application-assistant"
+COMMAND = REPO / ".opencode" / "command" / "setup.md"
+SKILL_DIR = REPO / ".opencode" / "skills" / "job-application-assistant"
 CV_TEMPLATES = SKILL_DIR / "05-cv-templates.md"
 COVER_TEMPLATES = SKILL_DIR / "06-cover-letter-templates.md"
 

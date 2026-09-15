@@ -80,21 +80,21 @@ class TestPathRules(unittest.TestCase):
 
 
 class TestAgentSelection(unittest.TestCase):
-    def test_named_claude_user_opt_out_is_honored(self):
-        body = "User-agent: Claude-User\nDisallow: /\n\nUser-agent: *\nAllow: /\n"
-        self.assertFalse(allowed(body, "Claude-User", "/a"))
+    def test_named_bot_opt_out_is_honored(self):
+        body = "User-agent: ExampleBot\nDisallow: /\n\nUser-agent: *\nAllow: /\n"
+        self.assertFalse(allowed(body, "ExampleBot", "/a"))
         self.assertTrue(allowed(body, "*", "/a"))
 
     def test_agent_match_is_case_insensitive(self):
-        body = "User-agent: CLAUDE-USER\nDisallow: /x\n"
-        self.assertFalse(allowed(body, "claude-user", "/x"))
+        body = "User-agent: EXAMPLEBOT\nDisallow: /x\n"
+        self.assertFalse(allowed(body, "examplebot", "/x"))
 
     def test_falls_back_to_star_when_agent_absent(self):
-        self.assertFalse(allowed(JOBUP, "Claude-User", "/api/v1"))
+        self.assertFalse(allowed(JOBUP, "ExampleBot", "/api/v1"))
 
     def test_multiple_agents_share_one_ruleset(self):
-        body = "User-agent: A\nUser-agent: Claude-User\nDisallow: /z\n"
-        self.assertFalse(allowed(body, "Claude-User", "/z"))
+        body = "User-agent: A\nUser-agent: ExampleBot\nDisallow: /z\n"
+        self.assertFalse(allowed(body, "ExampleBot", "/z"))
         self.assertFalse(allowed(body, "A", "/z"))
 
 
@@ -137,12 +137,11 @@ class TestSoftTwoHundred(unittest.TestCase):
         self.assertEqual(rc, 1)
         self.assertIn("not a robots.txt", msg)
 
-    def test_gate_reads_policy_as_browser_when_honest_request_is_refused(self):
+    def test_gate_reads_policy_with_browser_headers(self):
         """09-web-research.md's Barclays-class recovery: the policy file itself
-        returns 403 to Claude-User and 200 to a browser, and the checker must
-        then read it as a browser and obey it strictly. This is gate()'s UA
-        fallback loop, previously untested despite the doc's coverage claim
-        (review finding F30, 2026-08-19)."""
+        returns 403 to a plain request and 200 to a browser, and the checker must
+        read it with browser headers and obey it strictly. gate() therefore
+        fetches robots.txt as a browser rather than with an announced bot UA."""
         import robots_check
 
         original = robots_check._fetch
@@ -161,8 +160,8 @@ class TestSoftTwoHundred(unittest.TestCase):
         self.assertIn("ALLOWED", msg)
 
     def test_gate_obeys_a_browser_fetched_policy_strictly(self):
-        """The fallback must not fail open: a policy readable only as a browser
-        still disallows what it disallows."""
+        """Reading the policy with browser headers must not fail open: a policy
+        readable only that way still disallows what it disallows."""
         import robots_check
 
         original = robots_check._fetch

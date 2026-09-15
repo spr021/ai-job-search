@@ -4,13 +4,16 @@
 The retry exists to get past bot-filtering firewalls on sites whose robots.txt
 permits access. It is never used to override a site that has said no.
 
-WebFetch identifies itself as Claude-User and honors robots.txt, so a 403 has
-two very different causes: a WAF default on a site whose published policy
-allows access, or a site that has actually declined. This tells them apart.
+opencode's `webfetch` already presents a browser user agent, so there is no
+separate announced bot identity a site owner could target: the published policy
+that governs this workflow is the catch-all `User-agent: *` record. A 403 can
+therefore still have two very different causes - a WAF default on a site whose
+published policy allows access, or a site that has actually declined - and this
+tells them apart.
 
 Rules implemented (RFC 9309), deliberately on the cautious side:
   * longest-match wins; on equal specificity Disallow wins
-  * a Disallow for either "*" or "Claude-User" blocks the retry
+  * a Disallow for "*" blocks the retry
   * blank lines inside a record do not end it (Python's robotparser drops
     rules in that case, which fails open - see tests)
   * 404 means no published policy, which is permission
@@ -112,25 +115,21 @@ def gate(url):
     if parts.query:
         path += '?' + parts.query
     robots = f'{parts.scheme}://{parts.netloc}/robots.txt'
-    body, last = None, 'no attempt'
-    for ua in ('Claude-User', BROWSER):
-        try:
-            text, code = _fetch(robots, ua)
-        except Exception as e:
-            last = type(e).__name__; continue
-        if code == 404:
-            return 0, 'ALLOWED - no robots.txt published'
-        if code == 200:
-            if not is_robots_body(text):
-                last = 'HTTP 200 but the body is not a robots.txt'
-                continue
-            body = text; break
-        last = 'HTTP %d' % code
-    if body is None:
-        return 1, 'UNCONFIRMED (%s) - do not retry, go to step 3' % last
-    for a in ('Claude-User', '*'):
-        if not allowed(body, a, path):
-            return 1, f'DISALLOWED for {a} - do not retry, go to step 3'
+    # Read the policy with browser headers: some WAFs refuse robots.txt to any
+    # client that does not look like a browser, and a policy you are prevented
+    # from reading cannot be honored. Whatever we read, we then obey strictly.
+    try:
+        body, code = _fetch(robots, BROWSER)
+    except Exception as e:
+        return 1, 'UNCONFIRMED (%s) - do not retry, go to step 3' % type(e).__name__
+    if code == 404:
+        return 0, 'ALLOWED - no robots.txt published'
+    if code != 200:
+        return 1, 'UNCONFIRMED (HTTP %d) - do not retry, go to step 3' % code
+    if not is_robots_body(body):
+        return 1, 'UNCONFIRMED (HTTP 200 but the body is not a robots.txt) - do not retry, go to step 3'
+    if not allowed(body, '*', path):
+        return 1, 'DISALLOWED for * - do not retry, go to step 3'
     return 0, 'ALLOWED - robots.txt permits this path'
 
 if __name__ == '__main__':

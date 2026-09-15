@@ -33,8 +33,8 @@ import unittest
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
-RESET = REPO / ".claude" / "commands" / "reset.md"
-SETUP = REPO / ".claude" / "commands" / "setup.md"
+RESET = REPO / ".opencode" / "command" / "reset.md"
+SETUP = REPO / ".opencode" / "command" / "setup.md"
 
 
 def tracked_document_subfolders():
@@ -95,18 +95,18 @@ def setup_step3_skill_files():
     """Skill files /setup Step 3 populates, derived from its own headings.
 
     Step 3's targets are written as '### <n>. <verb> `<target>`', where the
-    target is either a bare filename resolved against .claude/skills/ or a
-    repo-relative path. Non-skill targets (CLAUDE.md, cv/main_example.tex)
+    target is either a bare filename resolved against .opencode/skills/ or a
+    repo-relative path. Non-skill targets (AGENTS.md, cv/main_example.tex)
     are dropped: /reset profile's scope is skill files only.
     """
     step3 = section(SETUP.read_text(encoding="utf-8"), "## Step 3:", "## Step 4:")
     files = set()
     for target in re.findall(r"^###\s+\d+\.\s+\w+\s+`([^`]+)`", step3, re.MULTILINE):
         if (REPO / target).exists():
-            if target.startswith(".claude/skills/"):
+            if target.startswith(".opencode/skills/"):
                 files.add(Path(target).name)
             continue
-        matches = list((REPO / ".claude" / "skills").glob(f"*/{target}"))
+        matches = list((REPO / ".opencode" / "skills").glob(f"*/{target}"))
         if matches:
             files.add(Path(target).name)
     return files

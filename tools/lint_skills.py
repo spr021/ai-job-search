@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Lint the repo's skill, command, and settings files.
+"""Lint the repo's skill, command, and config files.
 
 Run from anywhere: python tools/lint_skills.py
 
 Checks:
-- Every SKILL.md (.claude/skills/*, .agents/skills/*) has YAML frontmatter that
+- Every SKILL.md (.opencode/skills/*, .agents/skills/*) has YAML frontmatter that
   parses, with non-empty `name` and `description` keys
 - `allowed-tools` entries of the form `Bash(bun run <path> *)` point at files
   that exist (skill paths resolve relative to the repo root and to .agents/)
-- Every .claude/commands/*.md starts with a `# /<name>` title
-- .claude/settings.json is valid JSON with a permissions.allow list
+- Every .opencode/command/*.md carries a `# /<name>` title (after any YAML frontmatter)
+- opencode.json is valid JSON with a permission block
 
 Exit code 0 on success, 1 with a failure list otherwise.
 """
@@ -71,50 +71,56 @@ def check_skill(path: Path) -> None:
 
 
 def check_command(path: Path) -> None:
-    lines = path.read_text(encoding="utf-8").lstrip().splitlines()
+    text = path.read_text(encoding="utf-8")
+    body = text
+    if text.startswith("---\n"):
+        end = text.find("\n---", 4)
+        if end != -1:
+            body = text[end + 4:]
+    lines = body.lstrip().splitlines()
     first = lines[0] if lines else ""
     if not first.startswith("# /"):
-        errors.append(f"{rel(path)}: command file must start with a '# /<name>' title (found: {first[:50]!r})")
+        errors.append(f"{rel(path)}: command file must carry a '# /<name>' title (found: {first[:50]!r})")
 
 
-def check_settings() -> None:
-    path = ROOT / ".claude" / "settings.json"
+def check_config() -> None:
+    path = ROOT / "opencode.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
-        errors.append(f".claude/settings.json: {exc}")
+        errors.append(f"opencode.json: {exc}")
         return
     if not isinstance(data, dict):
-        errors.append(".claude/settings.json: expected top-level JSON value to be an object")
+        errors.append("opencode.json: expected top-level JSON value to be an object")
         return
-    permissions = data.get("permissions", {})
-    if not isinstance(permissions, dict):
-        errors.append(".claude/settings.json: expected permissions to be an object")
+    permission = data.get("permission", {})
+    if not isinstance(permission, dict):
+        errors.append("opencode.json: expected permission to be an object")
         return
-    if not isinstance(permissions.get("allow"), list):
-        errors.append(".claude/settings.json: expected permissions.allow to be a list")
+    if not isinstance(permission.get("bash"), dict):
+        errors.append("opencode.json: expected permission.bash to be an object")
 
 
 def main() -> int:
-    skills = sorted(ROOT.glob(".claude/skills/*/SKILL.md")) + sorted(ROOT.glob(".agents/skills/*/SKILL.md"))
-    commands = sorted((ROOT / ".claude" / "commands").glob("*.md"))
+    skills = sorted(ROOT.glob(".opencode/skills/*/SKILL.md")) + sorted(ROOT.glob(".agents/skills/*/SKILL.md"))
+    commands = sorted((ROOT / ".opencode" / "command").glob("*.md"))
     if not skills:
         errors.append("no SKILL.md files found - glob roots are wrong or the tree moved")
     if not commands:
-        errors.append("no command files found under .claude/commands/")
+        errors.append("no command files found under .opencode/command/")
 
     for skill in skills:
         check_skill(skill)
     for command in commands:
         check_command(command)
-    check_settings()
+    check_config()
 
     if errors:
         print(f"lint_skills: {len(errors)} failure(s)")
         for err in errors:
             print(f"  - {err}")
         return 1
-    print(f"lint_skills: OK ({len(skills)} skills, {len(commands)} commands, settings.json)")
+    print(f"lint_skills: OK ({len(skills)} skills, {len(commands)} commands, opencode.json)")
     return 0
 
 

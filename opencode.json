@@ -1,0 +1,39 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "deepseek/deepseek-v4-flash",
+  "instructions": ["AGENTS.md"],
+  "skills": {
+    "paths": [".opencode/skills"]
+  },
+  "permission": {
+    "webfetch": "allow",
+    "websearch": "allow",
+    "skill": "allow",
+    "bash": {
+      "*": "ask",
+      "bun --version": "allow",
+      "bun run .agents/skills/*/cli/src/cli.ts*": "allow",
+      "bun install*": "allow",
+      "bun test*": "allow",
+      "bun run typecheck*": "allow",
+      "python salary_lookup.py*": "allow",
+      "python3 salary_lookup.py*": "allow",
+      "python tools/rank_state.py*": "allow",
+      "python3 tools/rank_state.py*": "allow",
+      "python tools/job_key.py*": "allow",
+      "python3 tools/job_key.py*": "allow",
+      "python tools/verify_pdf.py*": "allow",
+      "python3 tools/verify_pdf.py*": "allow",
+      "python tools/verify_layout.py*": "allow",
+      "python3 tools/verify_layout.py*": "allow",
+      "python tools/lint_skills.py*": "allow",
+      "python3 tools/lint_skills.py*": "allow",
+      "python tools/robots_check.py*": "allow",
+      "python3 tools/robots_check.py*": "allow",
+      "pdftotext*": "allow",
+      "lualatex*": "allow",
+      "xelatex*": "allow",
+      "latexmk*": "allow"
+    }
+  }
+}

@@ -18,7 +18,7 @@ except ImportError:
     _HAVE_YAML = False
 
 REPO = Path(__file__).resolve().parent.parent
-COMMAND = REPO / ".claude" / "commands" / "notion-sync.md"
+COMMAND = REPO / ".opencode" / "command" / "notion-sync.md"
 GITIGNORE = REPO / ".gitignore"
 
 

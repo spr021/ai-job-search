@@ -4,7 +4,7 @@ Mirrors the pattern of test_html_report_command.py: derive the contract from
 the spec itself and compare it against the real portal CLIs, so a drift on
 either side fails with a clean diff.
 
-Why this test exists: .claude/skills/job-scraper/SKILL.md Step 2 promises
+Why this test exists: .opencode/skills/job-scraper/SKILL.md Step 2 promises
 "Search output already includes title, company, location, date, and URL" for
 every portal CLI, and Step 4.75's degraded scan flags "company null or empty
 on every result" as a half-working parser. A CLI that quietly stops emitting
@@ -25,7 +25,7 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-SCRAPER_SKILL = REPO_ROOT / ".claude" / "skills" / "job-scraper" / "SKILL.md"
+SCRAPER_SKILL = REPO_ROOT / ".opencode" / "skills" / "job-scraper" / "SKILL.md"
 PORTAL_CLIS = sorted((REPO_ROOT / ".agents" / "skills").glob("*-search"))
 
 # Derived, never copied: a hardcoded field list drifts in lockstep with

@@ -45,6 +45,34 @@ per-file diff commands.
   geometry. Tests use synthetic page geometry, so they need neither Poppler nor a
   LaTeX toolchain.
 
+### Changed
+
+- **The workspace is now opencode-native; the Claude Code layer is gone** - the
+  canonical specs moved from `.claude/` to `.opencode/` (commands to
+  `.opencode/command/`, skills to `.opencode/skills/`), and every spec was
+  rewritten to opencode's own tool names (`webfetch`, `websearch`, `read`,
+  `write`, `edit`, `glob`, `grep`, `bash`, `task` with
+  `subagent_type: "general"`, `question`) instead of carrying a Claude-to-opencode
+  translation shim. `CLAUDE.md` is merged into `AGENTS.md`, which opencode loads
+  as an instruction file. `.claude/settings.json` is folded into
+  `opencode.json`'s `permission.bash` allowlist, and `tools/security_guards.py`
+  now guards that allowlist plus the `plugin` array (a plugin loads and executes
+  at startup with no prompt, the same risk class the old `hooks` guard covered).
+  `tools/check_upstream_updates.py` keeps working across the rename by mapping
+  each upstream `.claude/...` path to its local `.opencode/...` counterpart, so
+  version-stamp comparisons still surface real upstream updates.
+  `.claude/agents/gemini-research-expert.md` is dropped: it drove the Gemini CLI,
+  and `.opencode/agent/research-expert.md` already does the same research with
+  opencode's `websearch`/`webfetch`.
+- **The robots.txt gate is retargeted to opencode's real fetch behaviour** -
+  opencode's `webfetch` presents a browser user agent, not an announced bot
+  identity, so the gate in `09-web-research.md` and `tools/robots_check.py` now
+  keys on the catch-all `User-agent: *` record instead of the old
+  `Claude-User`/`*` pair. The rule is unchanged in substance: a `*` disallow
+  still blocks the browser-header curl retry, and an unreadable policy still
+  leaves permission unconfirmed. `.gitignore` drops the dead
+  `.claude/projects/` memory rule.
+
 ### Fixed
 
 - **The template-placeholder guard in `test_setup_command.py` now skips on forks** (#463) -

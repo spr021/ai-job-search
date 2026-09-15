@@ -16,7 +16,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parent.parent
 README = REPO / "README.md"
 SETUP_GUIDE = REPO / "SETUP.md"
-SETUP_COMMAND = REPO / ".claude" / "commands" / "setup.md"
+SETUP_COMMAND = REPO / ".opencode" / "command" / "setup.md"
 
 
 def section(text: str, heading: str) -> str:

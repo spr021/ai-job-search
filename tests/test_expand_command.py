@@ -4,12 +4,12 @@ import unittest
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-EXPAND_COMMAND_FILE = REPO_ROOT / ".claude" / "commands" / "expand.md"
+EXPAND_COMMAND_FILE = REPO_ROOT / ".opencode" / "command" / "expand.md"
 
 
 class ExpandCommandTests(unittest.TestCase):
     def test_expand_command_file_exists(self):
-        self.assertTrue(EXPAND_COMMAND_FILE.exists(), "expand.md must exist under .claude/commands/")
+        self.assertTrue(EXPAND_COMMAND_FILE.exists(), "expand.md must exist under .opencode/command/")
 
     def test_expand_command_file_starts_with_correct_header(self):
         text = EXPAND_COMMAND_FILE.read_text(encoding="utf-8")
